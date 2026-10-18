@@ -6,7 +6,8 @@ Web: https://cikguyob-web.github.io/latihtubiPerniagaanT4/
 
 - `index.html` — laman murid
 - `dashboard.html` — paparan guru: semua murid (buka terus: /dashboard.html; tiada pautan dari laman murid)
-- `soalan/` — set soalan (lihat `soalan/CONTOH-set.js`)
+- `soalan/` — set soalan Kertas 1 (lihat `soalan/CONTOH-set.js`)
+- `soalan-k2/` — soalan Kertas 2 + skema jawapan (butang JAWAPAN)
 - `apps-script/rekod-markah.gs` — terima markah murid ke Google Sheet (lihat langkah dalam fail)
 - `apps-script/laporan-telegram.gs` — laporan harian Telegram
 

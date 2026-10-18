@@ -82,6 +82,9 @@ body {
   outline-offset: 2px;
 }
 
+/* Kertas 2: sumber petikan */
+.k2-rangsangan .sumber { font-size: 11px; color: #64748B; font-style: italic; }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -202,7 +205,7 @@ body {
       <!-- Quick Filter / Section Title -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <h3 class="font-heading text-xl font-bold text-slate-900">Soalan Percubaan Negeri · Bahagian Tingkatan 4</h3>
+          <h3 class="font-heading text-xl font-bold text-slate-900">Kertas 1 · Objektif</h3>
           <p class="text-xs text-slate-500">Jawab semua soalan dahulu. Jawapan dan penerangan dipaparkan selepas anda hantar.</p>
         </div>
         
@@ -216,6 +219,33 @@ body {
       <div id="senarai-kertas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <!-- Dynamic Cards inserted here -->
       </div>
+
+      <!-- Kertas 2 -->
+      <div id="bahagian-k2" class="space-y-4">
+        <div class="border-b border-slate-200 pb-4">
+          <h3 class="font-heading text-xl font-bold text-slate-900">Kertas 2 · Subjektif</h3>
+          <p class="text-xs text-slate-500">Cuba jawab sendiri dahulu, kemudian tekan <b>JAWAPAN</b> untuk melihat skema pemarkahan.</p>
+        </div>
+        <div id="senarai-k2" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </div>
+    </section>
+
+    <!-- SKRIN K2: SOALAN SUBJEKTIF + SKEMA -->
+    <section id="skrin-k2" class="hidden max-w-3xl mx-auto space-y-6 anim-fade">
+      <div class="flex items-start justify-between gap-3 border-b border-slate-200 pb-4">
+        <div>
+          <div id="k2-tag" class="font-mono-code text-[11px] tracking-widest uppercase text-indigo-600 font-bold"></div>
+          <h2 id="k2-tajuk" class="font-heading text-2xl font-extrabold text-slate-900"></h2>
+          <p id="k2-info" class="text-xs text-slate-500"></p>
+        </div>
+        <button onclick="kembaliKeMenuUtama()" class="shrink-0 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition">
+          Kembali
+        </button>
+      </div>
+      <div id="kandungan-k2" class="space-y-6"></div>
+      <button onclick="kembaliKeMenuUtama()" class="w-full py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl transition">
+        Kembali ke Senarai Kertas
+      </button>
     </section>
 
     <!-- SKRIN 3: KUIZ / SOALAN -->
@@ -364,7 +394,7 @@ body {
       <div class="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
           <h2 class="font-heading text-2xl font-extrabold text-slate-900">Perkembangan Markah</h2>
-          <p class="text-xs text-slate-500">Analisis prestasi Wajaran SPM 20% anda dari semasa ke semasa.</p>
+          <p class="text-xs text-slate-500">Bilangan jawapan betul anda dari semasa ke semasa.</p>
         </div>
         <button onclick="kembaliKeMenuUtama()" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition">
           Kembali
@@ -447,6 +477,8 @@ body {
 <script>
   window.__SET_SOALAN__ = [];
   function daftarSet(set){ window.__SET_SOALAN__.push(set); }
+  window.__SET_K2__ = [];
+  function daftarK2(set){ window.__SET_K2__.push(set); }
 </script>
 <script src="soalan/jhr-ppc-2026-t4.js"></script>
 <script src="soalan/kl-ppc-2026-t4.js"></script>
@@ -458,6 +490,8 @@ body {
 <script src="soalan/sbh-ppc-2026-t4.js"></script>
 <script src="soalan/swk-ppc-2026-t4.js"></script>
 <script src="soalan/trg-ppc-2026-t4.js"></script>
+<!-- Kertas 2 (subjektif) -->
+<script src="soalan-k2/prk-k2-2026-t4.js"></script>
 
 <!-- JAVASCRIPT CORE LOGIC -->
 <script>
@@ -585,6 +619,7 @@ function markahTerbaik(idSet) {
 }
 
 function binaMenu() {
+  binaMenuK2();
   const bekas = document.getElementById("senarai-kertas");
   const bekasFilter = document.getElementById("bekas-filter-negeri");
   
@@ -645,6 +680,94 @@ setInterval(() => {
   const bil = setDibuka().length;
   if (bil !== bilSetDibuka) { bilSetDibuka = bil; binaMenu(); }
 }, 60000);
+
+/* ---------- Kertas 2: soalan subjektif + skema (tiada pemarkahan) ---------- */
+const SEMUA_K2 = (window.__SET_K2__ || []);
+
+function binaMenuK2() {
+  const bahagian = document.getElementById("bahagian-k2");
+  bahagian.classList.toggle("hidden", SEMUA_K2.length === 0);
+  document.getElementById("senarai-k2").innerHTML = SEMUA_K2.map(s => {
+    const bil = s.soalan.reduce((a, q) => a + q.bahagian.length, 0);
+    return `
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="font-mono-code text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-100">${s.negeri}</span>
+            <span class="text-[11px] font-mono-code font-bold text-slate-500">${s.markah} markah</span>
+          </div>
+          <h4 class="font-heading font-extrabold text-lg text-slate-900 leading-snug">${s.nama}</h4>
+          <p class="text-xs text-slate-500 font-mono-code mt-1">${s.soalan.length} Soalan · ${bil} Bahagian</p>
+        </div>
+        <div class="pt-2 border-t border-slate-100">
+          <button onclick="bukaK2('${s.id}')" class="w-full py-2.5 px-3 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-semibold rounded-xl transition text-center shadow-sm uppercase tracking-wider">
+            Buka Soalan
+          </button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function bukaK2(id) {
+  const s = SEMUA_K2.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById("k2-tag").textContent = `${s.negeri} · Tingkatan 4`;
+  document.getElementById("k2-tajuk").textContent = s.nama;
+  document.getElementById("k2-info").textContent = `${s.soalan.length} soalan · ${s.markah} markah. Tekan JAWAPAN di bawah setiap soalan untuk melihat skema.`;
+
+  let n = 0;
+  document.getElementById("kandungan-k2").innerHTML = s.soalan.map(q => `
+    <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-6 space-y-4">
+      <div class="flex items-center gap-2">
+        <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white font-heading font-extrabold flex items-center justify-center">${q.no}</span>
+        <span class="font-mono-code text-[11px] uppercase tracking-widest text-slate-400 font-bold">Soalan ${q.no}</span>
+      </div>
+      ${q.st ? `<div class="k2-rangsangan p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 space-y-2 leading-relaxed">${q.st}</div>` : ""}
+      ${q.img ? `<figure class="text-center space-y-1"><img src="${q.img}" alt="${q.imgAlt || ""}" class="mx-auto max-w-full sm:max-w-sm rounded-lg border border-slate-200 bg-white"><figcaption class="text-xs text-slate-500 font-semibold">${q.imgCap || ""}</figcaption></figure>` : ""}
+      <div class="space-y-4">
+        ${q.bahagian.map(b => {
+          const id = `k2j-${n++}`;
+          return `
+          <div class="space-y-3 ${q.bahagian.length > 1 ? "border-t border-slate-100 pt-4 first:border-0 first:pt-0" : ""}">
+            ${b.st ? `<div class="k2-rangsangan p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 space-y-2 leading-relaxed">${b.st}</div>` : ""}
+            <div class="flex items-start gap-3">
+              ${b.label ? `<span class="font-mono-code text-sm font-bold text-indigo-600 shrink-0">${b.label}</span>` : ""}
+              <p class="flex-1 text-sm sm:text-base text-slate-900 font-medium leading-relaxed">${b.s}</p>
+              <span class="font-mono-code text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">${b.markah} markah</span>
+            </div>
+            <button onclick="togolJawapanK2('${id}', this)" aria-expanded="false" aria-controls="${id}"
+              class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition">
+              Jawapan
+            </button>
+            <div id="${id}" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="font-mono-code text-[11px] font-bold uppercase tracking-wider text-emerald-700">Skema Pemarkahan</span>
+                <span class="font-mono-code text-[11px] font-bold text-emerald-700">Maks. ${b.markah} markah${b.nota ? ` · ${b.nota}` : ""}</span>
+              </div>
+              <ul class="space-y-1.5">
+                ${b.j.map(([k, teks]) => `
+                  <li class="flex items-start gap-2 text-sm text-slate-800 leading-relaxed">
+                    <span class="font-mono-code text-[11px] font-bold shrink-0 min-w-[2.5rem] text-center px-1.5 py-0.5 rounded ${k.startsWith("F") ? "bg-indigo-600 text-white" : "bg-white text-emerald-700 border border-emerald-200"}">${k}</span>
+                    <span class="${k.startsWith("F") ? "font-bold" : ""}">${teks}</span>
+                  </li>`).join("")}
+              </ul>
+              <p class="text-[11px] text-emerald-700">F = Fakta · H = Huraian · 1 markah bagi setiap isi yang betul</p>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </article>`).join("");
+
+  tunjukSkrin("skrin-k2");
+  window.scrollTo(0, 0);
+}
+
+function togolJawapanK2(id, btn) {
+  const kotak = document.getElementById(id);
+  const buka = kotak.classList.toggle("hidden") === false;
+  btn.setAttribute("aria-expanded", buka);
+  btn.textContent = buka ? "Tutup Jawapan" : "Jawapan";
+}
 
 function tukarPenapisNegeri(negeri) {
   penapisNegeri = negeri;
@@ -1076,7 +1199,7 @@ function binaRekod() {
 
 
 /* NAVIGATION & MODAL HELPERS */
-const SKRIN = ["skrin-daftar", "skrin-menu", "skrin-kuiz", "skrin-slip", "skrin-semak", "skrin-rekod"];
+const SKRIN = ["skrin-daftar", "skrin-menu", "skrin-kuiz", "skrin-slip", "skrin-semak", "skrin-rekod", "skrin-k2"];
 
 function tunjukSkrin(id) {
   SKRIN.forEach(s => {
