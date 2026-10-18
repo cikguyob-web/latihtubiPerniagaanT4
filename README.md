@@ -5,7 +5,7 @@ Latihan objektif Perniagaan Tingkatan 4 untuk kelas 4 Intelek & 4 Dedikasi.
 Web: https://cikguyob-web.github.io/latihtubiPerniagaanT4/
 
 - `index.html` — laman murid
-- `dashboard.html` — paparan guru: semua murid, dikunci dengan kata laluan (buka terus: /dashboard.html)
+- `dashboard.html` — paparan guru: semua murid (buka terus: /dashboard.html; tiada pautan dari laman murid)
 - `soalan/` — set soalan (lihat `soalan/CONTOH-set.js`)
 - `apps-script/rekod-markah.gs` — terima markah murid ke Google Sheet (lihat langkah dalam fail)
 - `apps-script/laporan-telegram.gs` — laporan harian Telegram

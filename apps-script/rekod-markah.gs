@@ -2,14 +2,12 @@
    REKOD MARKAH · Bank Soalan Perniagaan Tingkatan 4
    - doPost : terima keputusan murid daripada index.html, simpan
               satu baris bagi setiap cubaan dalam Google Sheet.
-   - doGet  : hantar semua rekod kepada dashboard.html, HANYA jika
-              kata laluan guru betul. Murid tidak boleh baca rekod.
+   - doGet  : hantar semua rekod kepada dashboard.html.
 
    PEMASANGAN (sekali sahaja):
    1. Cipta Google Sheet baharu (contoh: "Rekod Perniagaan T4").
    2. Extensions → Apps Script. Padam kod contoh, tampal fail ini.
-   3. Tukar KATA_LALUAN_GURU di bawah kepada kata laluan sebenar, Save.
-      (Repo GitHub ini terbuka — jangan simpan kata laluan sebenar di GitHub.)
+   3. Save.
    4. Deploy → New deployment → ⚙️ Web app
         Execute as     : Me
         Who has access : Anyone
@@ -21,8 +19,6 @@
    Jika kod ini diubah kemudian: Deploy → Manage deployments → ✏️ →
    Version: New version → Deploy (URL kekal sama).
    ============================================================ */
-
-const KATA_LALUAN_GURU = "TUKAR_KATA_LALUAN_DI_SINI";
 
 // Nama lajur — dibaca oleh dashboard.html dan laporan-telegram.gs.
 const TAJUK = ["Tarikh", "Sesi", "Nama", "Kelas", "Negeri", "Set", "Mod",
@@ -63,11 +59,7 @@ function doPost(e) {
   }
 }
 
-function doGet(e) {
-  const kunci = (e && e.parameter && e.parameter.kunci) || "";
-  if (KATA_LALUAN_GURU === "TUKAR_KATA_LALUAN_DI_SINI" || kunci !== KATA_LALUAN_GURU) {
-    return jawapanJson({ ok: false, ralat: "kata_laluan" });
-  }
+function doGet() {
   const helaian = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
   const baris = helaian.getLastRow() ? helaian.getDataRange().getDisplayValues() : [];
   return jawapanJson({ ok: true, baris: baris });
