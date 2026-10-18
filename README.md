@@ -7,6 +7,7 @@ Web: https://cikguyob-web.github.io/latihtubiPerniagaanT4/
 - `index.html` — laman murid
 - `dashboard.html` — statistik kelas (cikgu)
 - `soalan/` — set soalan (lihat `soalan/CONTOH-set.js`)
+- `apps-script/rekod-markah.gs` — terima markah murid ke Google Sheet (lihat langkah dalam fail)
 - `apps-script/laporan-telegram.gs` — laporan harian Telegram
 
 Tetapan yang perlu diisi:
