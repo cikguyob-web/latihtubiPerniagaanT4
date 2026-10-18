@@ -29,6 +29,11 @@ const TAJUK = ["Tarikh", "Sesi", "Nama", "Kelas", "Negeri", "Set", "Mod",
                "Cubaan Ke", "Betul", "Jumlah", "Wajaran SPM", "Soalan Salah"];
 
 function doPost(e) {
+  // doPost hanya dipanggil oleh web murid. Butang "Run" dalam editor tiada data
+  // murid — untuk menguji dari editor, pilih fungsi ujiRekod dan tekan Run.
+  if (!e || !e.postData) {
+    return ContentService.createTextOutput("Tiada data. Untuk ujian, jalankan ujiRekod.");
+  }
   const kunci = LockService.getScriptLock();
   kunci.waitLock(10000);
   try {
@@ -71,4 +76,15 @@ function doGet(e) {
 function jawapanJson(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* Ujian dari editor: pilih "ujiRekod" di sebelah butang Run, kemudian tekan Run.
+   Satu baris "UJIAN CIKGU" akan ditambah ke Sheet — padam selepas semakan. */
+function ujiRekod() {
+  doPost({ postData: { contents: JSON.stringify({
+    tarikh: new Date().toISOString(), sesi: "T4 2026", nama: "UJIAN CIKGU", kelas: "4 Intelek",
+    negeri: "Johor", set: "PPC 2026", mod: "Latihan", cubaanKe: 1,
+    betul: 15, jumlah: 20, wajaranSpm: 15, salah: "3, 8, 12, 17, 20"
+  }) } });
+  Logger.log("Baris ujian ditambah. Semak Sheet.");
 }
