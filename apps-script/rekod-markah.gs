@@ -75,7 +75,7 @@ function jawapanJson(obj) {
 function ujiRekod() {
   doPost({ postData: { contents: JSON.stringify({
     tarikh: new Date().toISOString(), sesi: "T4 2026", nama: "UJIAN CIKGU", kelas: "4 Intelek",
-    negeri: "Johor", set: "PPC 2026", mod: "Latihan", cubaanKe: 1,
+    negeri: "Johor", set: "PPC 2026", mod: "Latih Tubi", cubaanKe: 1,
     betul: 15, jumlah: 20, wajaranSpm: 15, salah: "3, 8, 12, 17, 20"
   }) } });
   Logger.log("Baris ujian ditambah. Semak Sheet.");
