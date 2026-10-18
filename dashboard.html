@@ -149,6 +149,7 @@ body{
    URL Web App Apps Script (apps-script/rekod-markah.gs) — sama seperti dalam index.html. */
 const ENDPOINT_CIKGU = "https://script.google.com/macros/s/AKfycbxQpChTF-qASQYLQGmwhcEiE8WINAA3KgH1f15wb5WSGvdxs4eBUjAMrN8jykhZKOSn/exec";
 const WAJARAN_K1 = 20;
+const BIL_SOALAN = 20; // setiap set T4 ada 20 soalan
 
 let SEMUA = [];
 let penapisKelas = "Semua";
@@ -383,14 +384,14 @@ function kadStat(label, nilai, warna, kecil) {
 function binaKadRingkas() {
   const d = dataTapis();
   const murid = new Set(d.map(r => r.nama)).size;
-  const purata = d.length ? Math.round(d.reduce((a, b) => a + b.wajaran, 0) / d.length * 10) / 10 : 0;
-  const tertinggi = d.length ? Math.max(...d.map(r => r.wajaran)) : 0;
+  const purata = d.length ? Math.round(d.reduce((a, b) => a + b.betul, 0) / d.length * 10) / 10 : 0;
+  const tertinggi = d.length ? Math.max(...d.map(r => r.betul)) : 0;
 
   document.getElementById("kad-ringkas").innerHTML =
     kadStat("Jumlah Cubaan", d.length, "text-slate-900") +
     kadStat("Murid Terlibat", murid, "text-indigo-600") +
-    kadStat("Purata Wajaran", purata + "%", "text-amber-600", `daripada ${WAJARAN_K1}% wajaran K1`) +
-    kadStat("Wajaran Tertinggi", tertinggi + "%", "text-emerald-600");
+    kadStat("Purata Betul", `${purata}/${BIL_SOALAN}`, "text-amber-600", `soalan betul setiap cubaan`) +
+    kadStat("Paling Banyak Betul", `${tertinggi}/${BIL_SOALAN}`, "text-emerald-600");
 }
 
 /* ---------- Senarai murid mengikut kelas ----------
@@ -524,7 +525,7 @@ function binaKelasMurid() {
     });
 
     const murid = Object.values(kumpul).map(({ nama, arr }) => ({
-      nama, cubaan: arr.length, terbaik: arr.reduce((a, b) => (b.wajaran > a.wajaran ? b : a))
+      nama, cubaan: arr.length, terbaik: arr.reduce((a, b) => (b.betul > a.betul ? b : a))
     })).sort((a, b) => a.nama.localeCompare(b.nama, "ms"));
 
     const belum = rasmi.filter(n => !sudahJawab.has(n));
@@ -536,8 +537,9 @@ function binaKelasMurid() {
             <li class="flex items-center gap-3 py-2">
               <span class="font-mono-code text-[11px] text-slate-400 w-6 shrink-0 text-right">${i + 1}.</span>
               <span class="flex-1 text-sm font-semibold text-slate-800">${esc(m.nama)}</span>
-              <span class="text-[11px] font-mono-code text-slate-400 whitespace-nowrap">${m.cubaan}× · ${m.terbaik.betul}/${m.terbaik.jumlah}</span>
-              <span class="text-xs font-mono-code font-bold text-emerald-600 w-12 text-right">${m.terbaik.wajaran}%</span>
+              <span class="text-[11px] font-mono-code text-slate-400 whitespace-nowrap">${m.cubaan}×</span>
+              <span class="text-xs font-mono-code font-bold text-emerald-600 whitespace-nowrap">${m.terbaik.betul} betul</span>
+              <span class="text-xs font-mono-code font-bold text-red-500 whitespace-nowrap">${m.terbaik.jumlah - m.terbaik.betul} salah</span>
             </li>`).join("")}
         </ol>`
       : `<p class="text-sm text-slate-400 text-center py-4">Belum ada murid menjawab${labelMod}.</p>`;
@@ -640,8 +642,8 @@ function binaBandingKelas() {
     const d = SEMUA.filter(r => r.kelas === k && (penapisMod === "Semua" || r.mod === penapisMod));
     if (!d.length) return "";
     const murid = new Set(d.map(r => r.nama)).size;
-    const purata = Math.round(d.reduce((a, b) => a + b.wajaran, 0) / d.length * 10) / 10;
-    const tertinggi = Math.max(...d.map(r => r.wajaran));
+    const purata = Math.round(d.reduce((a, b) => a + b.betul, 0) / d.length * 10) / 10;
+    const tertinggi = Math.max(...d.map(r => r.betul));
 
     // Taburan gred berasaskan peratus mentah (betul/jumlah)
     const gred = { Cemerlang: 0, Baik: 0, Memuaskan: 0, Ulangkaji: 0 };
@@ -668,8 +670,8 @@ function binaBandingKelas() {
         </div>
         <div class="grid grid-cols-3 gap-2 text-center">
           <div><div class="text-[10px] text-slate-400 uppercase font-mono-code">Cubaan</div><div class="font-heading font-extrabold text-lg text-slate-800">${jum}</div></div>
-          <div><div class="text-[10px] text-slate-400 uppercase font-mono-code">Purata</div><div class="font-heading font-extrabold text-lg text-amber-600">${purata}%</div></div>
-          <div><div class="text-[10px] text-slate-400 uppercase font-mono-code">Terbaik</div><div class="font-heading font-extrabold text-lg text-emerald-600">${tertinggi}%</div></div>
+          <div><div class="text-[10px] text-slate-400 uppercase font-mono-code">Purata</div><div class="font-heading font-extrabold text-lg text-amber-600">${purata}/${BIL_SOALAN}</div></div>
+          <div><div class="text-[10px] text-slate-400 uppercase font-mono-code">Terbaik</div><div class="font-heading font-extrabold text-lg text-emerald-600">${tertinggi}/${BIL_SOALAN}</div></div>
         </div>
         <div>
           <div class="flex h-3 rounded-full overflow-hidden bg-slate-100">
@@ -693,11 +695,11 @@ function binaRingkasanKertas() {
   });
 
   const baris = Object.entries(kumpul).map(([nama, arr]) => {
-    const purata = Math.round(arr.reduce((a, b) => a + b.wajaran, 0) / arr.length * 10) / 10;
+    const purata = Math.round(arr.reduce((a, b) => a + b.betul, 0) / arr.length * 10) / 10;
     return {
       nama, cubaan: arr.length,
       murid: new Set(arr.map(r => r.nama)).size,
-      purata, tertinggi: Math.max(...arr.map(r => r.wajaran))
+      purata, tertinggi: Math.max(...arr.map(r => r.betul))
     };
   }).sort((a, b) => a.purata - b.purata);
 
@@ -722,8 +724,8 @@ function binaRingkasanKertas() {
               </td>
               <td class="text-center px-3 py-3 font-mono-code text-slate-600">${b.murid}</td>
               <td class="text-center px-3 py-3 font-mono-code text-slate-600">${b.cubaan}</td>
-              <td class="text-center px-3 py-3 font-mono-code font-bold text-amber-600">${b.purata}%</td>
-              <td class="text-center px-4 py-3 font-mono-code font-bold text-emerald-600">${b.tertinggi}%</td>
+              <td class="text-center px-3 py-3 font-mono-code font-bold text-amber-600">${b.purata}/${BIL_SOALAN}</td>
+              <td class="text-center px-4 py-3 font-mono-code font-bold text-emerald-600">${b.tertinggi}/${BIL_SOALAN}</td>
             </tr>`).join("")}
         </tbody>
       </table>
@@ -741,12 +743,12 @@ function binaMurid() {
 
   let senarai = Object.entries(kumpul).map(([kunci, arr]) => {
     const [nama, kelas] = kunci.split("|");
-    const terbaik = Math.max(...arr.map(r => r.wajaran));
+    const terbaik = Math.max(...arr.map(r => r.betul));
     const susun = [...arr].sort((a, b) => new Date(a.tarikh) - new Date(b.tarikh));
-    const pertama = susun[0].wajaran, terkini = susun[susun.length - 1].wajaran;
+    const pertama = susun[0].betul, terkini = susun[susun.length - 1].betul;
     return {
       nama, kelas, cubaan: arr.length, terbaik,
-      purata: Math.round(arr.reduce((a, b) => a + b.wajaran, 0) / arr.length * 10) / 10,
+      purata: Math.round(arr.reduce((a, b) => a + b.betul, 0) / arr.length * 10) / 10,
       beza: Math.round((terkini - pertama) * 10) / 10,
       kertas: new Set(arr.map(r => `${r.negeri} · ${r.set}`)).size,
       rekod: susun
@@ -783,11 +785,11 @@ function binaMurid() {
               </td>
               <td class="text-center px-3 py-3 font-mono-code text-slate-600">${m.kertas}</td>
               <td class="text-center px-3 py-3 font-mono-code text-slate-600">${m.cubaan}</td>
-              <td class="text-center px-3 py-3 font-mono-code text-amber-600 font-bold">${m.purata}%</td>
-              <td class="text-center px-3 py-3 font-mono-code text-emerald-600 font-bold">${m.terbaik}%</td>
+              <td class="text-center px-3 py-3 font-mono-code text-amber-600 font-bold">${m.purata}/${BIL_SOALAN}</td>
+              <td class="text-center px-3 py-3 font-mono-code text-emerald-600 font-bold">${m.terbaik}/${BIL_SOALAN}</td>
               <td class="text-center px-4 py-3 font-mono-code font-bold ${
                 m.beza > 0 ? "text-emerald-600" : m.beza < 0 ? "text-red-500" : "text-slate-400"}">
-                ${m.beza > 0 ? "+" : ""}${m.beza}%
+                ${m.beza > 0 ? "+" : ""}${m.beza} betul
               </td>
             </tr>
             <tr id="m${idx}" class="hidden bg-slate-50/60">
@@ -797,8 +799,8 @@ function binaMurid() {
                     <div class="flex items-center justify-between gap-3 text-xs bg-white px-3 py-2 rounded-lg border border-slate-200">
                       <span class="text-slate-700 font-semibold">${r.negeri} · ${r.set}</span>
                       <span class="text-slate-400 font-mono-code hidden sm:inline">${r.mod} · Kali ${r.cubaanKe}</span>
-                      <span class="text-slate-500 font-mono-code">${r.betul}/${r.jumlah}</span>
-                      <span class="font-mono-code font-bold text-indigo-600">${r.wajaran}%</span>
+                      <span class="font-mono-code font-bold text-emerald-600 whitespace-nowrap">${r.betul} betul</span>
+                      <span class="font-mono-code font-bold text-red-500 whitespace-nowrap">${r.jumlah - r.betul} salah</span>
                     </div>`).join("")}
                 </div>
               </td>

@@ -186,7 +186,7 @@ body {
               Hi, <span id="papar-nama-user" class="text-indigo-200">Murid</span>! 👋
             </h2>
             <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl">
-              Pilih set soalan Tingkatan 4 di bawah. Wajaran Kertas 1 mewakili <span class="text-amber-300 font-bold">20% daripada markah keseluruhan SPM</span>.
+              Pilih set soalan Tingkatan 4 di bawah. Setiap set ada <span class="text-amber-300 font-bold">20 soalan</span> — jawab semua, kemudian lihat berapa betul dan salah.
             </p>
           </div>
 
@@ -275,7 +275,7 @@ body {
       <!-- Resit Slip -->
       <div class="resit rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-6 text-slate-800">
         <div class="text-center border-b-2 border-dashed border-slate-300 pb-5">
-          <div class="font-mono-code text-xs tracking-widest uppercase text-indigo-600 font-bold mb-1">Perniagaan SPM Kertas 1</div>
+          <div class="font-mono-code text-xs tracking-widest uppercase text-indigo-600 font-bold mb-1">Perniagaan Tingkatan 4</div>
           <h2 class="font-heading text-2xl font-extrabold text-slate-900">SLIP KEPUTUSAN</h2>
           <p id="resit-subtajuk" class="text-xs text-slate-500 font-mono-code mt-1">SMK BIDOR · PERAK 2025</p>
         </div>
@@ -299,10 +299,19 @@ body {
           </div>
         </div>
 
-        <!-- Wajaran & Grade Big Box -->
-        <div class="border-t-2 border-dashed border-slate-300 pt-5 text-center">
-          <span class="font-mono-code text-xs uppercase tracking-widest text-indigo-600 font-bold">Wajaran SPM (20%)</span>
-          <div id="resit-wajaran" class="font-heading text-5xl font-extrabold text-slate-900 my-1">0%</div>
+        <!-- Betul & Salah -->
+        <div class="border-t-2 border-dashed border-slate-300 pt-5 text-center space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 py-3">
+              <div id="resit-betul" class="font-heading text-5xl font-extrabold text-emerald-600 leading-none">0</div>
+              <div class="font-mono-code text-xs uppercase tracking-widest text-emerald-700 font-bold mt-1">Betul</div>
+            </div>
+            <div class="rounded-xl bg-red-50 border border-red-200 py-3">
+              <div id="resit-salah" class="font-heading text-5xl font-extrabold text-red-500 leading-none">0</div>
+              <div class="font-mono-code text-xs uppercase tracking-widest text-red-600 font-bold mt-1">Salah</div>
+            </div>
+          </div>
+          <p id="resit-daripada" class="text-xs text-slate-500 font-mono-code">daripada 20 soalan</p>
           <div id="resit-gred" class="inline-block px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
             CEMERLANG
           </div>
@@ -572,7 +581,7 @@ function rekodSet(idSet) {
 
 function markahTerbaik(idSet) {
   const r = rekodSet(idSet);
-  return r.length ? Math.max(...r.map(x => x.wajaranSpm)) : null;
+  return r.length ? r.reduce((a, b) => (b.betul > a.betul ? b : a)) : null;
 }
 
 function binaMenu() {
@@ -612,7 +621,7 @@ function binaMenu() {
             <span class="font-mono-code text-[11px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-100">
               ${s.negeri}
             </span>
-            ${terbaik !== null ? `<span class="text-[11px] font-mono-code font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">Terbaik: ${terbaik}%</span>` : ''}
+            ${terbaik !== null ? `<span class="text-[11px] font-mono-code font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">Terbaik: ${terbaik.betul}/${terbaik.jumlah}</span>` : ''}
           </div>
           <h4 class="font-heading font-extrabold text-lg text-slate-900 leading-snug">${s.nama}</h4>
           <p class="text-xs text-slate-500 font-mono-code mt-1">
@@ -795,7 +804,7 @@ function tamatKuiz() {
     namaSet: setAktif.nama,
     mod: "Latih Tubi",
     cubaanKe: lepas.length + 1,
-    terbaikSebelum: lepas.length ? Math.max(...lepas.map(x => x.wajaranSpm)) : null,
+    terbaikSebelum: lepas.length ? Math.max(...lepas.map(x => x.betul)) : null,
     betul,
     jumlah: soalan.length,
     peratus,
@@ -829,14 +838,14 @@ function binaResit(r) {
   document.getElementById("resit-mod").textContent = r.mod;
   document.getElementById("resit-cubaan").textContent = `${r.cubaanKe}`;
   document.getElementById("resit-tarikh").textContent = tarikhStr;
-  document.getElementById("resit-skor").textContent = `${r.betul} / ${r.jumlah} (${r.peratus}%)`;
+  document.getElementById("resit-skor").textContent = `${r.betul} betul / ${r.jumlah} soalan`;
 
   const bandingBox = document.getElementById("resit-banding-box");
   if (r.terbaikSebelum !== null) {
-    const beza = Math.round((r.wajaranSpm - r.terbaikSebelum) * 10) / 10;
-    const arah = beza > 0 ? `+${beza}% (Meningkat)` : (beza === 0 ? "Sama" : `${beza}%`);
+    const beza = r.betul - r.terbaikSebelum;
+    const arah = beza > 0 ? `+${beza} betul (Meningkat)` : (beza === 0 ? "Sama" : `${beza} betul`);
     bandingBox.innerHTML = `
-      <div class="flex justify-between"><span class="text-slate-500">Terbaik Sebelum Ini</span><span class="font-bold text-slate-700">${r.terbaikSebelum}%</span></div>
+      <div class="flex justify-between"><span class="text-slate-500">Terbaik Sebelum Ini</span><span class="font-bold text-slate-700">${r.terbaikSebelum} betul</span></div>
       <div class="flex justify-between"><span class="text-slate-500">Perubahan</span><span class="font-bold ${beza >= 0 ? 'text-emerald-600' : 'text-red-500'}">${arah}</span></div>
     `;
   } else {
@@ -844,7 +853,9 @@ function binaResit(r) {
   }
 
   document.getElementById("resit-salah-list").textContent = r.salahNo.length ? r.salahNo.join(", ") : "Tiada (Semua betul!)";
-  document.getElementById("resit-wajaran").textContent = `${r.wajaranSpm}%`;
+  document.getElementById("resit-betul").textContent = r.betul;
+  document.getElementById("resit-salah").textContent = r.jumlah - r.betul;
+  document.getElementById("resit-daripada").textContent = `daripada ${r.jumlah} soalan`;
 
   const gred = dapatGred(r.peratus);
   const elGred = document.getElementById("resit-gred");
@@ -929,44 +940,47 @@ function binaRekod() {
   const data = semua.slice(-12);
   const W = 320, H = 140, pad = 24;
   const x = i => pad + (data.length === 1 ? (W - 2 * pad) / 2 : i * (W - 2 * pad) / (data.length - 1));
-  const y = p => H - pad - ((Number(p) || 0) / WAJARAN_K1) * (H - 2 * pad);
+  const maks = Math.max(...data.map(d => d.jumlah)) || 20;
+  const y = p => H - pad - ((Number(p) || 0) / maks) * (H - 2 * pad);
 
-  const titik = data.map((d, i) => `${x(i)},${y(d.wajaranSpm)}`).join(" ");
+  const titik = data.map((d, i) => `${x(i)},${y(d.betul)}`).join(" ");
 
   /* Satu titik sahaja tidak boleh membentuk garisan, jadi lukis penanda
      mendatar supaya murid tetap nampak kedudukan markah pertama mereka. */
   const garisan = data.length === 1
-    ? `<line x1="${pad}" y1="${y(data[0].wajaranSpm)}" x2="${W - pad}" y2="${y(data[0].wajaranSpm)}"
+    ? `<line x1="${pad}" y1="${y(data[0].betul)}" x2="${W - pad}" y2="${y(data[0].betul)}"
              stroke="#6366F1" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round"/>`
     : `<polyline points="${titik}" fill="none" stroke="#6366F1" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
 
   const bulat = data.map((d, i) =>
-    `<circle cx="${x(i)}" cy="${y(d.wajaranSpm)}" r="4.5" fill="#6366F1" stroke="#fff" stroke-width="1.5"/>`
+    `<circle cx="${x(i)}" cy="${y(d.betul)}" r="4.5" fill="#6366F1" stroke="#fff" stroke-width="1.5"/>`
   ).join("");
 
   /* Label nilai pada titik pertama dan terakhir supaya graf mudah dibaca. */
   const label = data.map((d, i) => {
     if (data.length > 1 && i !== 0 && i !== data.length - 1) return "";
-    const atas = y(d.wajaranSpm) > pad + 14;
-    return `<text x="${x(i)}" y="${atas ? y(d.wajaranSpm) - 9 : y(d.wajaranSpm) + 16}"
+    const atas = y(d.betul) > pad + 14;
+    return `<text x="${x(i)}" y="${atas ? y(d.betul) - 9 : y(d.betul) + 16}"
                   text-anchor="middle" font-family="Space Mono, monospace" font-size="9"
-                  font-weight="700" fill="#4F46E5">${d.wajaranSpm}%</text>`;
+                  font-weight="700" fill="#4F46E5">${d.betul}/${d.jumlah}</text>`;
   }).join("");
 
-  const rujuk = [0, WAJARAN_K1 / 2, WAJARAN_K1].map(v =>
-    `<line x1="${pad}" y1="${y(v)}" x2="${W - pad}" y2="${y(v)}" stroke="#E2E8F0" stroke-width="1" ${v === WAJARAN_K1 / 2 ? 'stroke-dasharray="3 3"' : ''}/>
-     <text x="2" y="${y(v) + 3}" font-family="Space Mono, monospace" font-size="8" fill="#94A3B8">${v}%</text>`
+  const rujuk = [0, maks / 2, maks].map(v =>
+    `<line x1="${pad}" y1="${y(v)}" x2="${W - pad}" y2="${y(v)}" stroke="#E2E8F0" stroke-width="1" ${v === maks / 2 ? 'stroke-dasharray="3 3"' : ''}/>
+     <text x="2" y="${y(v) + 3}" font-family="Space Mono, monospace" font-size="8" fill="#94A3B8">${v}</text>`
   ).join("");
 
-  const purata = Math.round((semua.reduce((a, b) => a + b.wajaranSpm, 0) / semua.length) * 10) / 10;
-  const terbaik = Math.max(...semua.map(d => d.wajaranSpm));
+  const purata = Math.round((semua.reduce((a, b) => a + b.betul, 0) / semua.length) * 10) / 10;
+  const terbaik = Math.max(...semua.map(d => d.betul));
+  const bilSoalan = Math.max(...semua.map(d => d.jumlah));
 
-  /* Markah terbaik (peratus betul) bagi setiap set yang dibuka. */
+  /* Cubaan terbaik (paling banyak betul) bagi setiap set yang dibuka. */
   const senaraiSet = setDibuka();
   let setDijawab = 0;
   const barisSet = senaraiSet.map(s => {
     const r = semua.filter(d => d.idSet === s.id);
-    const p = r.length ? Math.max(...r.map(d => d.peratus)) : null;
+    const best = r.length ? r.reduce((a, b) => (b.betul > a.betul ? b : a)) : null;
+    const p = best ? best.peratus : null;
     if (p !== null) setDijawab++;
     const g = p === null ? { teks: "BELUM", warna: "bg-slate-50 text-slate-400 border border-dashed border-slate-200" } : dapatGred(p);
     return `
@@ -975,7 +989,7 @@ function binaRekod() {
           <span class="font-semibold text-slate-700 min-w-0 truncate">${s.negeri} <span class="text-slate-400 font-normal">${s.nama}</span></span>
           <span class="flex items-center gap-2 shrink-0">
             <span class="text-[10px] font-mono-code font-bold px-2 py-0.5 rounded-md ${g.warna}">${g.teks}</span>
-            <span class="font-mono-code font-bold ${p === null ? "text-slate-300" : "text-slate-800"} w-11 text-right">${p === null ? "–" : p + "%"}</span>
+            <span class="font-mono-code font-bold ${p === null ? "text-slate-300" : "text-slate-800"} text-right">${best ? `${best.betul}/${best.jumlah}` : "–"}</span>
           </span>
         </div>
         <div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-indigo-500 rounded-full" style="width:${p || 0}%"></div></div>
@@ -990,8 +1004,9 @@ function binaRekod() {
           <div class="font-bold text-slate-800">${d.negeri} ${d.namaSet}</div>
           <div class="text-slate-400 font-mono-code text-[11px]">${t.toLocaleDateString("ms-MY", { day: "2-digit", month: "short" })} · ${d.mod}</div>
         </div>
-        <div class="font-mono-code font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100">
-          ${d.wajaranSpm}%
+        <div class="font-mono-code font-bold text-xs whitespace-nowrap flex gap-1.5">
+          <span class="text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">${d.betul} betul</span>
+          <span class="text-red-600 bg-red-50 px-2 py-1 rounded-lg border border-red-100">${d.jumlah - d.betul} salah</span>
         </div>
       </div>
     `;
@@ -1001,12 +1016,12 @@ function binaRekod() {
     <!-- SVG Chart Card -->
     <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="font-heading font-bold text-sm text-slate-800">Graf Wajaran SPM (12 Percubaan Terakhir)</h3>
-        <span class="text-xs font-mono-code text-slate-400">Skala 0 - ${WAJARAN_K1}%</span>
+        <h3 class="font-heading font-bold text-sm text-slate-800">Bilangan Betul (12 Cubaan Terakhir)</h3>
+        <span class="text-xs font-mono-code text-slate-400">daripada ${maks} soalan</span>
       </div>
       <div class="w-full">
         <svg viewBox="0 0 ${W} ${H}" class="w-full h-auto overflow-visible" role="img"
-             aria-label="Graf Wajaran SPM mengikut percubaan">
+             aria-label="Graf bilangan jawapan betul mengikut cubaan">
           ${rujuk}
           ${garisan}
           ${bulat}
@@ -1025,12 +1040,12 @@ function binaRekod() {
         <span class="font-heading text-xl font-extrabold text-slate-900">${semua.length}</span>
       </div>
       <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
-        <span class="text-[10px] text-slate-400 uppercase font-mono-code block">Purata Wajaran</span>
-        <span class="font-heading text-xl font-extrabold text-indigo-600">${purata}%</span>
+        <span class="text-[10px] text-slate-400 uppercase font-mono-code block">Purata Betul</span>
+        <span class="font-heading text-xl font-extrabold text-indigo-600">${purata}/${bilSoalan}</span>
       </div>
       <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
-        <span class="text-[10px] text-slate-400 uppercase font-mono-code block">Skor Tertinggi</span>
-        <span class="font-heading text-xl font-extrabold text-emerald-600">${terbaik}%</span>
+        <span class="text-[10px] text-slate-400 uppercase font-mono-code block">Paling Banyak Betul</span>
+        <span class="font-heading text-xl font-extrabold text-emerald-600">${terbaik}/${bilSoalan}</span>
       </div>
     </div>
 
