@@ -616,7 +616,7 @@ function binaMenu() {
           </div>
           <h4 class="font-heading font-extrabold text-lg text-slate-900 leading-snug">${s.nama}</h4>
           <p class="text-xs text-slate-500 font-mono-code mt-1">
-            ${s.soalan.length} Soalan · ${s.minit} Minit ${cubaan ? `· ${cubaan} Cubaan` : ''}
+            ${s.soalan.length} Soalan ${cubaan ? `· ${cubaan} Cubaan` : ''}
           </p>
         </div>
 
@@ -653,15 +653,10 @@ function mulaKuiz(idSet, ujian) {
   jawapanMurid = [];
   modUjian = ujian;
 
+  // Latih Tubi tiada had masa.
   clearInterval(pemasa);
-  if (ujian) {
-    bakiSaat = setAktif.minit * 60;
-    pemasa = setInterval(detikMasa, 1000);
-    paparMasa();
-  } else {
-    document.getElementById("papar-masa").textContent = "Mod Latihan";
-    document.getElementById("papar-masa").className = "px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-bold text-xs";
-  }
+  document.getElementById("papar-masa").textContent = "Tiada had masa";
+  document.getElementById("papar-masa").className = "px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-bold text-xs";
 
   tunjukSkrin("skrin-kuiz");
   paparSoalan();
