@@ -1,20 +1,28 @@
 /* ============================================================
    REKOD MARKAH · Bank Soalan Perniagaan Tingkatan 4
-   Terima keputusan murid daripada index.html dan simpan
-   satu baris bagi setiap cubaan dalam Google Sheet.
+   - doPost : terima keputusan murid daripada index.html, simpan
+              satu baris bagi setiap cubaan dalam Google Sheet.
+   - doGet  : hantar semua rekod kepada dashboard.html, HANYA jika
+              kata laluan guru betul. Murid tidak boleh baca rekod.
 
    PEMASANGAN (sekali sahaja):
    1. Cipta Google Sheet baharu (contoh: "Rekod Perniagaan T4").
-   2. Extensions → Apps Script. Tampal fail ini, Save.
-   3. Deploy → New deployment → Select type: Web app
+   2. Extensions → Apps Script. Padam kod contoh, tampal fail ini.
+   3. Tukar KATA_LALUAN_GURU di bawah kepada kata laluan sebenar, Save.
+      (Repo GitHub ini terbuka — jangan simpan kata laluan sebenar di GitHub.)
+   4. Deploy → New deployment → ⚙️ Web app
         Execute as     : Me
         Who has access : Anyone
       Tekan Deploy, benarkan akses, salin "Web app URL".
-   4. Beri URL itu kepada Claude (untuk ENDPOINT_CIKGU dalam index.html).
-   5. Dalam Sheet: File → Share → Publish to web →
-      pilih helaian pertama + "Comma-separated values (.csv)" → Publish.
-      Beri pautan itu kepada Claude (untuk URL_CSV dalam dashboard.html).
+   5. Beri URL itu kepada Claude (ENDPOINT_CIKGU dalam index.html
+      dan dashboard.html).
+   Sheet TIDAK perlu diterbitkan (Publish to web) — biarkan peribadi.
+
+   Jika kod ini diubah kemudian: Deploy → Manage deployments → ✏️ →
+   Version: New version → Deploy (URL kekal sama).
    ============================================================ */
+
+const KATA_LALUAN_GURU = "TUKAR_KATA_LALUAN_DI_SINI";
 
 // Nama lajur — dibaca oleh dashboard.html dan laporan-telegram.gs.
 const TAJUK = ["Tarikh", "Sesi", "Nama", "Kelas", "Negeri", "Set", "Mod",
@@ -48,4 +56,19 @@ function doPost(e) {
   } finally {
     kunci.releaseLock();
   }
+}
+
+function doGet(e) {
+  const kunci = (e && e.parameter && e.parameter.kunci) || "";
+  if (KATA_LALUAN_GURU === "TUKAR_KATA_LALUAN_DI_SINI" || kunci !== KATA_LALUAN_GURU) {
+    return jawapanJson({ ok: false, ralat: "kata_laluan" });
+  }
+  const helaian = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  const baris = helaian.getLastRow() ? helaian.getDataRange().getDisplayValues() : [];
+  return jawapanJson({ ok: true, baris: baris });
+}
+
+function jawapanJson(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
