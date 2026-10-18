@@ -491,6 +491,7 @@ body {
 <script src="soalan/swk-ppc-2026-t4.js"></script>
 <script src="soalan/trg-ppc-2026-t4.js"></script>
 <!-- Kertas 2 (subjektif) -->
+<script src="soalan-k2/jhr-k2-2026-t4.js"></script>
 <script src="soalan-k2/prk-k2-2026-t4.js"></script>
 
 <!-- JAVASCRIPT CORE LOGIC -->
@@ -730,11 +731,13 @@ function bukaK2(id) {
           return `
           <div class="space-y-3 ${q.bahagian.length > 1 ? "border-t border-slate-100 pt-4 first:border-0 first:pt-0" : ""}">
             ${b.st ? `<div class="k2-rangsangan p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 space-y-2 leading-relaxed">${b.st}</div>` : ""}
+            ${b.img ? `<figure class="text-center space-y-1"><img src="${b.img}" alt="${b.imgAlt || ""}" class="mx-auto max-w-full sm:max-w-sm rounded-lg border border-slate-200 bg-white"><figcaption class="text-xs text-slate-500 font-semibold">${b.imgCap || ""}</figcaption></figure>` : ""}
             <div class="flex items-start gap-3">
               ${b.label ? `<span class="font-mono-code text-sm font-bold text-indigo-600 shrink-0">${b.label}</span>` : ""}
               <p class="flex-1 text-sm sm:text-base text-slate-900 font-medium leading-relaxed">${b.s}</p>
               <span class="font-mono-code text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">${b.markah} markah</span>
             </div>
+            ${b.dskp ? `<p class="font-mono-code text-[10px] text-slate-400 -mt-1">DSKP ${b.dskp}</p>` : ""}
             <button onclick="togolJawapanK2('${id}', this)" aria-expanded="false" aria-controls="${id}"
               class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition">
               Jawapan
@@ -745,7 +748,9 @@ function bukaK2(id) {
                 <span class="font-mono-code text-[11px] font-bold text-emerald-700">Maks. ${b.markah} markah${b.nota ? ` · ${b.nota}` : ""}</span>
               </div>
               <ul class="space-y-1.5">
-                ${b.j.map(([k, teks]) => `
+                ${b.j.map(([k, teks]) => k === "ATAU"
+                  ? `<li class="text-center font-mono-code text-[11px] font-bold text-emerald-700 py-1">— ATAU —</li>`
+                  : `
                   <li class="flex items-start gap-2 text-sm text-slate-800 leading-relaxed">
                     <span class="font-mono-code text-[11px] font-bold shrink-0 min-w-[2.5rem] text-center px-1.5 py-0.5 rounded ${k.startsWith("F") ? "bg-indigo-600 text-white" : "bg-white text-emerald-700 border border-emerald-200"}">${k}</span>
                     <span class="${k.startsWith("F") ? "font-bold" : ""}">${teks}</span>
